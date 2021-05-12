@@ -318,6 +318,12 @@ void TensorImpl::release_resources() {
   if (storage_) {
     storage_ = {};
   }
+  if (owns_pyobj_) {
+    TORCH_INTERNAL_ASSERT(pyobj_interpreter_ != nullptr);
+    TORCH_INTERNAL_ASSERT(pyobj_ != nullptr);
+    pyobj_interpreter_.load(std::memory_order_acquire)->decref(pyobj_);
+    pyobj_ = nullptr; // for safety
+  }
 }
 
 #ifndef C10_DISABLE_TENSORIMPL_EXTENSIBILITY
